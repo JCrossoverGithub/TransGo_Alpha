@@ -1,4 +1,6 @@
 ﻿@page "/counter"
+@using TransGo_Alpha.Shared
+@inject HttpClient Http
 
 <h1>Counter</h1>
 
@@ -9,8 +11,19 @@
 @code {
     private int currentCount = 0;
 
-    private void IncrementCount()
+    async void IncrementCount()
     {
+        User user = new User();
+        user.Id = "0";
+        user.Email = "test@aol.com";
+        user.Firstname = "test";
+        user.Lastname = "test";
+        user.Password = "password";
+        user.School = "Harvard";
+        user.Studentid = "000111";
+
+        await Http.PostAsJsonAsync("api/users/adduser", user);
+
         currentCount++;
     }
 }
