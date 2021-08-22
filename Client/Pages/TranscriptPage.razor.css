@@ -1,0 +1,148 @@
+﻿:root {
+    --clr-primary: #651fff;
+    --clr-gray: #37474f;
+    --clr-gray-light: #b0bec5;
+}
+
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    font-family: "Open Sans", sans-serif;
+}
+
+
+.grid-container {
+    background: white;
+    display: grid;
+    height: 720px;
+    grid-template-columns: 0.37fr 2fr;
+}
+
+.grid-item-1 {
+    background-color: white;
+    box-shadow: 0px 0px 10px #e1e5ee;
+}
+
+#yourcourses {
+    font-size: 25px;
+    margin-top: 15px;
+    color: #1f3333;
+    padding-bottom: 12px;
+}
+
+#semester {
+    margin-top: 7px;
+    margin-bottom: 18px;
+    font-size: 18px;
+    color: #1f3333;
+}
+
+.navbuttons {
+}
+
+.nav__listitem {
+    list-style: none;
+    transition: all 200ms ease-in;
+    padding: 1rem 1.5rem;
+    border-left: 6px solid transparent;
+    cursor: pointer;
+}
+
+    .nav__listitem:first-child {
+        margin-top: 1.2rem;
+        margin-bottom: 0.9rem;
+    }
+
+        .nav__listitem:first-child svg {
+            color: #1ca0a0;
+            fill: #1ca0a0;
+        }
+
+        .nav__listitem:first-child p {
+            color: #1ca0a0;
+            fill: #1ca0a0;
+        }
+
+        .nav__listitem:first-child a {
+            font-weight: 700;
+            font-family: 'Monda', sans-serif;
+        }
+
+    .nav__listitem:last-child {
+        bottom: 0;
+        background-color: #1ca0a0;
+    }
+
+        .nav__listitem:last-child svg {
+            color: #dff1f1;
+            fill: #dff1f1;
+        }
+
+        .nav__listitem:last-child p {
+            color: #dff1f1;
+            fill: #dff1f1;
+        }
+
+    .nav__listitem:hover {
+        fill: #4f546c;
+        background-color: #f4f6fb;
+    }
+
+    .nav__listitem:last-child:hover {
+        background-color: #1ca0a0;
+    }
+
+.nav__list a {
+    display: inline;
+    gap: 1rem;
+    align-items: center;
+    color: #767b91;
+    text-decoration: none;
+    font-weight: 400;
+}
+
+.nav__list svg {
+    fill: #767b91;
+    width: 2rem;
+}
+
+.nav__listitem-active {
+    background-color: #eef1f6;
+    border-left: 6px solid #1ca0a0;
+}
+
+    .nav__listitem-active svg {
+        color: #1ca0a0;
+        fill: #1ca0a0;
+    }
+
+    .nav__listitem-active p {
+        color: #1ca0a0;
+        fill: #1ca0a0;
+    }
+
+/* Close state */
+
+.nav-closed .nav__expand {
+    transform: rotateZ(0deg);
+}
+
+.nav-closed .nav__listitem p {
+    display: none;
+}
+
+.nav-closed .nav__list {
+    width: 5rem;
+}
+
+
+.grid-item-2 {
+    padding: 12px;
+    margin-left: 0.9rem;
+}
+
+.transcriptbox {
+    box-shadow: 0px 1px 1px #f2dede inset, 0px 0px 8px #dff0d8;
+    font-size: 23px;
+}

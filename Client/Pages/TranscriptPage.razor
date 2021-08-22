@@ -1,0 +1,24 @@
+﻿@page "/transcriptpage/{id}"
+@layout EmptyLayout
+@inject NavigationManager NavManager
+@inject HttpClient Http
+@using TransGo_Alpha.Shared
+
+<div class="grid-container">
+    <div class="grid-item grid-item-1">
+        <div class="navbuttons">
+        </div>
+    </div>
+    <div class="grid-item grid-item-2">
+        <textarea class="transcriptbox" rows="50" cols="95"></textarea>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public string Id { get; set; }
+
+
+
+}

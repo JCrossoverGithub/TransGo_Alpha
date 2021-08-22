@@ -1,0 +1,73 @@
+﻿@page "/"
+@layout EmptyLayout
+@using TransGo_Alpha.Client.Components;
+
+<head>
+    <title>TranGo</title>
+    <link rel="stylesheet" type="text/css" href="css/homepagestyle.css">
+</head>
+<body>
+
+    <div class="grid-container">
+
+        <div class="grid-item grid-item-header">
+            <p id="headername">TransGo</p>
+            <a href="" @onclick="@AddLoginMenu" id="headerlogin" @onclick:preventDefault>
+                <p>Log in</p>
+            </a>
+            <a href="" @onclick="@AddRegistrationMenu" id="sign-up" @onclick:preventDefault>
+                <p>Sign Up</p>
+            </a>
+        </div>
+        <div class="grid-item grid-item-body">
+            <h1>Transcripts in <i>real time</i></h1>
+            <p id="line1">Create a real time transcript in a matter of seconds.</p>
+        </div>
+
+    </div>
+</body>
+
+<AddLoginDialog @ref="AddLoginDialog">
+
+</AddLoginDialog>
+
+<AddRegDialog @ref="AddRegDialog">
+
+</AddRegDialog>
+
+
+@code{
+
+    private bool IsOpen { get; set; } = false;
+
+    private void LoginTo()
+    {
+        IsOpen = !IsOpen;
+    }
+
+    public AddLoginDialog AddLoginDialog
+    {
+        get;
+        set;
+    }
+
+    private void AddLoginMenu()
+    {
+        AddLoginDialog.Show();
+    }
+
+    public AddRegDialog AddRegDialog
+    {
+        get;
+        set;
+    }
+
+
+    private void AddRegistrationMenu()
+    {
+        AddRegDialog.Show();
+    }
+
+
+
+}

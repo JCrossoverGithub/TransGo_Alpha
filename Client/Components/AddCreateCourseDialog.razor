@@ -1,0 +1,89 @@
+﻿@inject HttpClient Http
+@inject NavigationManager NavManager
+@using TransGo_Alpha.Shared
+
+@if (CreateCourse.ShowDialog)
+{
+    <div class="modal fade show d-block" id="exampleModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="titleLabel">Create Course</h5>
+                    <button type="button" class="close" @onclick="@Close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@CreateCourse">
+                        <DataAnnotationsValidator />
+                        <div class="form-group">
+                            <label for="coursey">Course Id:</label>
+                            <InputText id="courseCode" class="form-control" @bind-Value="@CreateCourse.CourseNumber" placeholder="CS 310"></InputText>
+
+                            <label for="coursey">Course Name:</label>
+                            <InputText id="courseCode" class="form-control" @bind-Value="@CreateCourse.CourseName" placeholder="Data Structures and Algorithms"></InputText>
+                        </div>
+                        <button type="submit" id="but" class="btn btn-primary" @onclick="@Submit">Create</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code{
+
+    CreateCourse CreateCourse = new CreateCourse();
+    User profile { get; set; }
+
+    public void Show(User _user)
+    {
+        profile = _user;
+        ResetDialog();
+        CreateCourse.ShowDialog = true;
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        CreateCourse.ShowDialog = false;
+        StateHasChanged();
+    }
+
+    private void ResetDialog()
+    {
+        CreateCourse = new CreateCourse { };
+    }
+
+    private async void Submit()
+    {
+        Course newcourse = new Course();
+        var rand = new Random();
+        newcourse.Id = (rand.Next(100000,1000000)).ToString();
+        newcourse.CourseNum = CreateCourse.CourseNumber;
+        newcourse.CourseName = CreateCourse.CourseName;
+        newcourse.Instructors = profile.Id;
+
+        await Http.PostAsJsonAsync("api/courses/createcourse", newcourse);
+
+        // Add new course id to the teachers course array
+        User sender = new User();
+        sender.Id = profile.Id;
+
+        if (!String.IsNullOrEmpty(profile.Coursecodes))
+        {
+            sender.Coursecodes = newcourse.Id + " " + profile.Coursecodes;
+        }
+        else
+        {
+            sender.Coursecodes = newcourse.Id;
+        }
+
+        // Add the Course id to the Users list of courses.
+        await Http.PutAsJsonAsync($"api/users/addcourse/{sender}", sender);
+
+        CreateCourse.ShowDialog = false;
+        StateHasChanged();
+        NavManager.NavigateTo($"profile/{profile.Id}");
+    }
+}

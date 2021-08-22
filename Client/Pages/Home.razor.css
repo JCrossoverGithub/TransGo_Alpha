@@ -1,0 +1,116 @@
+﻿:root {
+    --clr-primary: #651fff;
+    --clr-gray: #37474f;
+    --clr-gray-light: #b0bec5;
+}
+
+* {
+    margin: 0px;
+    box-sizing: border-box;
+    font-family: "proxima-nova", "Proxima Nova", "Helvetica Neue", Helvetica, sans-serif;
+}
+
+a {
+    margin: 0px;
+    padding: 0px;
+}
+
+
+.grid-container {
+    display: grid;
+}
+
+    .grid-container > * {
+        background: white;
+        display: flex;
+        grid-gap: 10px;
+        padding: 10px 250px 10px 250px;
+    }
+
+.grid-item-contact {
+    border-bottom: 1px solid #1b807c;
+}
+
+    .grid-item-contact > p {
+        padding: 5px 0px 5px 0px;
+        font-size: 12px;
+    }
+
+#contact {
+    padding-right: 50%;
+    /*color: #004d40;*/
+    color: black;
+    font-weight: 700;
+}
+
+#c2 {
+    margin-right: -6px;
+    font-weight: bold;
+    /*color: #004d40;*/
+    color: black;
+}
+
+#c3 {
+    margin-right: 6px;
+}
+
+#c4 {
+    margin-right: -6px;
+    font-weight: bold;
+    /*color: #004d40;*/
+    color: black;
+}
+
+#c5 {
+}
+
+.grid-item-header {
+    border-bottom: 1px solid #1b807c;
+    background: #079990;
+    background: -moz-linear-gradient(left, #079990 0%, #03997E 41%, #079974 100%);
+    background: -webkit-linear-gradient(left, #079990 0%, #03997E 41%, #079974 100%);
+    background: linear-gradient(to right, #079990 0%, #03997E 41%, #079974 100%);
+}
+
+#headername {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    margin-top: 3px;
+}
+
+#headerlogin {
+    font-size: 15px;
+    padding: 5px 8px 5px 8px;
+    color: white;
+    border: 1px solid white;
+    margin-left: 66%;
+}
+
+#sign-up {
+    font-size: 15px;
+    padding: 5px 8px 5px 8px;
+    color: white;
+    border: 1px solid white;
+}
+
+.grid-item-body {
+    height: 500px;
+    border-bottom: 1px solid #1b807c;
+    padding-top: 100px;
+    background: #079990;
+    background: -moz-linear-gradient(left, #079990 0%, #03997E 41%, #079974 100%);
+    background: -webkit-linear-gradient(left, #079990 0%, #03997E 41%, #079974 100%);
+    background: linear-gradient(to right, #079990 0%, #03997E 41%, #079974 100%);
+    height: 700px;
+}
+
+    .grid-item-body h1 {
+        color: white;
+    }
+
+    .grid-item-body p {
+        color: white;
+        margin-top: 40px;
+        margin-left: -358px;
+    }

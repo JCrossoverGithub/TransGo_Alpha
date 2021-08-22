@@ -1,0 +1,81 @@
+﻿@using TransGo_Alpha.Shared
+@inject HttpClient Http
+
+@if (StudReg.ShowDialog)
+{
+    <div class="modal fade show d-block" id="exampleModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="titleLabel">Student Registration</h5>
+                    <button type="button" class="close" @onclick="@Close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@StudReg">
+                        <DataAnnotationsValidator />
+                        <div class="form-group">
+                            <label for="coursey">First Name:</label>
+                            <InputText id="email" class="form-control" @bind-Value="@StudReg.Firstname" placeholder="First Name"></InputText>
+                            <ValidationMessage For="@(() => StudReg.Firstname)" />
+
+                            <label for="coursey">Last Name:</label>
+                            <InputText id="email" class="form-control" @bind-Value="@StudReg.Lastname" placeholder="Last Name"></InputText>
+                            <ValidationMessage For="@(() => StudReg.Lastname)" />
+
+                            <label for="coursey">Email:</label>
+                            <InputText id="email" class="form-control" @bind-Value="@StudReg.Email" placeholder="Email"></InputText>
+                            <ValidationMessage For="@(() => StudReg.Email)" />
+
+                            <label for="coursey" id="pass-label">Password:</label>
+                            <InputText type="password" id="password" class="form-control" @bind-Value="@StudReg.Password" placeholder="Password"></InputText>
+                            <ValidationMessage For="@(() => StudReg.Password)" />
+                        </div>
+                        <button type="submit" id="but" class="btn btn-primary" @onclick="@SignUp">Register</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code{
+
+    StudReg StudReg = new StudReg();
+
+    public void Show()
+    {
+        ResetDialog();
+        StudReg.ShowDialog = true;
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        StudReg.ShowDialog = false;
+        StateHasChanged();
+    }
+
+    private void ResetDialog()
+    {
+        StudReg = new StudReg { };
+    }
+
+    private async void SignUp()
+    {
+        User user = new User();
+        user.Firstname = StudReg.Firstname;
+        user.Lastname = StudReg.Lastname;
+        user.Email = StudReg.Email;
+        user.Password = StudReg.Password;
+        user.Roles = "Student";
+        var rand = new Random();
+        user.Id = (rand.Next(9999999)).ToString();
+
+        await Http.PostAsJsonAsync("api/users/adduser", user);
+        StudReg.ShowDialog = false;
+        StateHasChanged();
+    }
+
+}

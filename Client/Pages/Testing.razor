@@ -1,0 +1,28 @@
+﻿@page "/testing"
+@layout EmptyLayout
+@inject NavigationManager NavManager
+@inject HttpClient Http
+@using TransGo_Alpha.Shared
+
+<h3>Testing</h3>
+
+@if(load)
+{ 
+    @lecture.Transcript
+}
+
+@code {
+
+    Lecture lecture { get; set; }
+    Boolean load = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        string lectureid = "000001";
+        lecture = await Http.GetFromJsonAsync<Lecture>($"api/lectures/test/{lectureid}");
+        load = true;
+
+    }
+
+
+}

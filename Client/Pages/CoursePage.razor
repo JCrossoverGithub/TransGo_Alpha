@@ -1,0 +1,104 @@
+﻿@page "/coursepage/{id}"
+@layout EmptyLayout
+@inject NavigationManager NavManager
+@inject HttpClient Http
+@using TransGo_Alpha.Shared
+@using TransGo_Alpha.Client.Components
+
+@if (isLoaded == false)
+{
+    <text>Loading...</text>
+}
+else
+{
+
+    <div class="grid-container">
+        <div class="grid-item grid-item-1">
+            <h1 id="yourcourses">@_course.CourseNum</h1>
+            <div class="classtable-wrapper">
+                <table class="transcript-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int count = 0;
+                            if (lecture != null)
+                            {
+                                foreach (Lecture lec in lecturelist)
+                                {
+                                    count += 1;
+                                    <tr>
+                                        <td><a href="" @onclick="() => LoadTranscript(lec.Id)" @onclick:preventDefault>Lecture #@count</a></td>
+                                        @if (lec.IsComplete == 1)
+                                        {
+                                            <td>Completed</td>
+
+                                        }
+                                        else
+                                        {
+                                            <td>In Progress</td>
+}
+                                        <td>@lec.DateOf</td>
+                                    </tr>
+                                }
+                            }
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    Boolean isLoaded { get; set; }
+    Course _course { get; set; }
+    private string[] _transcriptarray;
+    List<Lecture> lecturelist = new List<Lecture>();
+    Lecture lecture { get; set; }
+    int count = 0;
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        isLoaded = false;
+        _course = await Http.GetFromJsonAsync<Course>($"api/courses/{Id}");
+        LoadCourse();
+        isLoaded = true;
+
+    }
+
+    private async void LoadCourse()
+    {
+        /* Load Individual Lecture Info */
+        if (_course.Transcripts != null)
+        {
+            _transcriptarray = _course.Transcripts.Split(' ');
+            foreach (var lectureid in _transcriptarray)
+            {
+                lecture = await Http.GetFromJsonAsync<Lecture>($"api/lectures/test/{lectureid}");
+                lecturelist.Add(lecture);
+            }
+        }
+        /*
+        * CHANGE SO CLIENTS DONT NEED TO LOAD EVERY SINGLE TRANSCRIPT.
+        *  OTHERWISE IT MAY NOT SCALE WELL. 
+        */
+        StateHasChanged();
+    }
+
+    private void LoadTranscript(string transcriptid)
+    {
+        NavManager.NavigateTo($"transcriptpage/{transcriptid}");
+    }
+
+}

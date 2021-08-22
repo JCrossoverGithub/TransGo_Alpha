@@ -1,0 +1,149 @@
+﻿@page "/profile/{id}"
+@layout EmptyLayout
+@inject NavigationManager NavManager
+@inject HttpClient Http
+@using TransGo_Alpha.Shared
+@using TransGo_Alpha.Client.Components
+
+
+
+@if (isLoaded == false)
+{
+    <text>Loading...</text>
+}
+else
+{
+<div class="grid-container">
+    <div class="grid-item grid-item-1">
+        <h1 id="yourcourses">Your Courses</h1>
+        <p id="semester">Fall 2021</p>
+        <div id="inner-grid">
+            @if (bub != null)
+            {
+                @foreach (Course cub in cube)
+                {
+                    @if (profile.Roles == "Instructor")
+                    {
+                        <a href="" @onclick="() => TeacherLoadCourse(cub.Id)" @onclick:preventDefault>
+                            <div id="course">
+                                <p id="coursenum">@cub.CourseNum</p>
+                                <p id="coursename">@cub.CourseName</p>
+                                <p id="transcriptnum">9 Transcripts</p>
+                            </div>
+                        </a>
+                    }
+                    @if (profile.Roles == "Student")
+                    {
+                        <a href="" @onclick="() => LoadCourse(cub.Id)" @onclick:preventDefault>
+                            <div id="course">
+                                <p id="coursenum">@cub.CourseNum</p>
+                                <p id="coursename">@cub.CourseName</p>
+                                <p id="transcriptnum">9 Transcripts</p>
+                            </div>
+                        </a>
+                    }
+
+                }
+            }
+            @if (profile.Roles == "Instructor")
+            {
+                <a href="" @onclick="@CreateCourseButton" @onclick:preventDefault>
+                    <div id="newcourse">
+                        <p>Create a course</p>
+                    </div>
+                </a>
+            }
+            @if (profile.Roles == "Student")
+            {
+                <a href="" @onclick="@AddCourseButton" @onclick:preventDefault>
+                    <div id="newcourse">
+                        <p>Add a course</p>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+</div>
+}
+<AddCourseIdDialog @ref="AddCourseIdDialog">
+
+</AddCourseIdDialog>
+
+<AddCreateCourseDialog @ref="AddCreateCourseDialog">
+
+</AddCreateCourseDialog>
+
+
+
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    User profile { get; set; }
+    private bool IsOpen { get; set; } = false;
+    List<Course> cube = new List<Course>();
+    Course bub { get; set; }
+    private int[] _coursearray;
+    Boolean isLoaded { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        isLoaded = false;
+        profile = await Http.GetFromJsonAsync<User>($"api/users/profile/{Id}");
+        ProcessCourses();
+        isLoaded = true;
+    }
+
+    private void OpenClose()
+    {
+        IsOpen = !IsOpen;
+    }
+
+    private async void ProcessCourses()
+    {
+        if (!String.IsNullOrEmpty(profile.Coursecodes))
+        {
+            _coursearray = profile.Coursecodes.Split(' ').Select(Int32.Parse).ToArray();
+            foreach (var vab in _coursearray)
+            {
+                bub = await Http.GetFromJsonAsync<Course>($"api/courses/{vab}");
+                cube.Add(bub);
+            }
+        }
+        StateHasChanged();
+
+    }
+
+    public AddCourseIdDialog AddCourseIdDialog
+    {
+        get;
+        set;
+    }
+
+    public AddCreateCourseDialog AddCreateCourseDialog
+    {
+        get;
+        set;
+    }
+
+    private void AddCourseButton()
+    {
+        AddCourseIdDialog.Show(profile);
+    }
+
+    private void CreateCourseButton()
+    {
+        AddCreateCourseDialog.Show(profile);
+    }
+
+    private void LoadCourse(string courseid)
+    {
+        NavManager.NavigateTo($"coursepage/{courseid}");
+    }
+
+    private void TeacherLoadCourse(string courseid)
+    {
+        NavManager.NavigateTo($"admin/{courseid}");
+    }
+
+}

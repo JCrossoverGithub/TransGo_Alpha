@@ -1,0 +1,85 @@
+﻿:root {
+    --clr-primary: #651fff;
+    --clr-gray: #37474f;
+    --clr-gray-light: #b0bec5;
+}
+
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    font-family: "Open Sans", sans-serif;
+}
+
+
+.grid-container {
+    background: white;
+    display: grid;
+    height: 720px;
+    grid-template-columns: 0.37fr 2fr;
+}
+
+.grid-item-1 {
+    padding: 12px;
+}
+
+#yourcourses {
+    font-size: 25px;
+    margin-top: 15px;
+    color: #1f3333;
+    padding-bottom: 12px;
+}
+
+#semester {
+    margin-top: 7px;
+    margin-bottom: 18px;
+    font-size: 18px;
+    color: #1f3333;
+}
+
+
+.transcript-table {
+    border-collapse: collapse;
+    width: 1220px;
+}
+
+    .transcript-table TABLE, TBODY, TR, TD, TH {
+        text-align: left;
+        padding: 0;
+        border-bottom: 2px solid #e1e5eb;
+        border-spacing: 0; /* or border-collapse:collapse */
+    }
+
+    .transcript-table th {
+        padding: 11px;
+        font-size: 15px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .transcript-table td {
+        font-size: 17px;
+        font-weight: 600;
+        color: #1f3333;
+        padding: 18px;
+        padding-left: 10px;
+    }
+
+a:link, a:visited, a:active {
+    text-decoration: none;
+    color: #1f3333;
+}
+
+a:hover {
+    color: #1b807c;
+}
+
+
+.transcript-table tr:nth-child(even) {
+    background-color: #f9f9fb;
+}
+
+a {
+    border-bottom: none;
+    text-decoration: none;
+}

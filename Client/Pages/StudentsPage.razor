@@ -1,0 +1,130 @@
+﻿@page "/students/{id}"
+@layout EmptyLayout
+@inject HttpClient Http
+@using TransGo_Alpha.Shared
+@using TransGo_Alpha.Client.Components;
+
+
+
+
+
+
+@if (!isLoaded)
+{
+    <text>Loading...</text>
+}
+else
+{
+    <button class="btn btn-info" id="btnAdd" @onclick="@AddStudent">Add New Student</button>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Student Id</th>
+                <th>Email</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Actions</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (_user != null)
+            {
+                @foreach (User user in _userlist)
+                {
+                    <tr>
+                        <td>@user.Studentid</td>
+                        <td>@user.Email</td>
+                        <td>@user.Firstname</td>
+                        <td>@user.Lastname</td>
+                        <td><button class="btn btn-danger" @onclick="() => DeleteStudent(user.Id, user.Coursecodes)">Remove Student</button></td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+
+<AddStudentDialog @ref="AddStudentDialog">
+
+</AddStudentDialog>
+
+
+
+
+
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    Boolean isLoaded { get; set; }
+    Course _course { get; set; }
+    private string[] _studentsarr;
+    User _user { get; set; }
+    List<User> _userlist = new List<User>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        isLoaded = false;
+        _course = await Http.GetFromJsonAsync<Course>($"api/courses/{Id}");
+        LoadStudents();
+        isLoaded = true;
+    }
+
+    private async void LoadStudents()
+    {
+        if(!String.IsNullOrEmpty(_course.Students))
+        {
+            _studentsarr = _course.Students.Split(' ');
+            foreach (var stud in _studentsarr)
+            {
+                _user = await Http.GetFromJsonAsync<User>($"api/users/profile/{stud}");
+                _userlist.Add(_user);
+            }
+            StateHasChanged();
+        }
+    }
+
+    private void AddStudent()
+    {
+        AddStudentDialog.Show(Id);
+    }
+
+    private async void DeleteStudent(string studentid, string studentcourses)
+    {
+        _studentsarr = _studentsarr.Where(e => e != studentid).ToArray();
+        string newstudentlist = String.Join(" ", _studentsarr);
+        Course sender = new Course();
+        sender.Id = Id;
+        sender.Students = newstudentlist;
+        // Update course student list after removing specific user.
+        await Http.PutAsJsonAsync($"api/courses/removeuser/{sender}", sender);
+
+
+        string[] userarr = studentcourses.Split(' ');
+        userarr = userarr.Where(e => e != Id).ToArray();
+        string newcourseslist = String.Join(" ", userarr);
+        User senduser = new User();
+        senduser.Id = studentid;
+        senduser.Coursecodes = newcourseslist;
+
+        await Http.PutAsJsonAsync($"api/users/addcourse/{senduser}", senduser);
+
+        //await Refresh();
+    }
+
+    public AddStudentDialog AddStudentDialog
+    {
+        get;
+        set;
+    }
+
+    /*
+    private async Task Refresh()
+    {
+        todos = await Http.GetJsonAsync<ToDoList[]>("/api/ToDo");
+        StateHasChanged();
+    }
+    */
+}

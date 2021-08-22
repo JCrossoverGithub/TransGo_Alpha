@@ -1,0 +1,79 @@
+﻿@page "/admin/{id}"
+@layout EmptyLayout
+@inject NavigationManager NavManager
+@inject HttpClient Http
+@using TransGo_Alpha.Shared
+@using TransGo_Alpha.Client.Components
+
+
+@if (isLoaded == false)
+{
+    <text>Loading...</text>
+}
+else
+{
+    <div class="grid-container">
+        <div class="grid-item grid-item-1">
+            <h1 id="yourcourses">@_course.CourseNum</h1>
+            <div id="inner-grid">
+                <a href="" @onclick="@ViewStudents" @onclick:preventDefault>
+                    <div id="course">
+                        <p id="coursenum">Students</p>
+                    </div>
+                </a>
+                <a href="" @onclick="@ViewTranscripts" @onclick:preventDefault>
+                    <div id="course">
+                        <p id="coursenum">Transcripts</p>
+                    </div>
+                </a>
+                <a href="" @onclick="@ViewInstructors" @onclick:preventDefault>
+                    <div id="course">
+                        <p id="coursenum">Instructors</p>
+                    </div>
+                </a>
+                <a href="" @onclick="@ViewSettings" @onclick:preventDefault>
+                    <div id="course">
+                        <p id="coursenum">Settings</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    Boolean isLoaded { get; set; }
+    Course _course { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        isLoaded = false;
+        _course = await Http.GetFromJsonAsync<Course>($"api/courses/{Id}");
+        isLoaded = true;
+    }
+
+    private void ViewStudents()
+    {
+        NavManager.NavigateTo($"students/{Id}");
+    }
+
+    private void ViewTranscripts()
+    {
+        NavManager.NavigateTo($"coursepage/{Id}");
+    }
+
+    private void ViewInstructors()
+    {
+    }
+
+    private void ViewSettings()
+    {
+    }
+
+}

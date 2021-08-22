@@ -1,0 +1,111 @@
+﻿@inject HttpClient Http
+@inject NavigationManager NavManager
+@using TransGo_Alpha.Shared
+
+@if (CourseId.ShowDialog)
+{
+    <div class="modal fade show d-block" id="exampleModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="titleLabel">Add Course</h5>
+                    <button type="button" class="close" @onclick="@Close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@CourseId">
+                        <DataAnnotationsValidator />
+                        <div class="form-group">
+                            <label for="coursey">Course Code:</label>
+                            <InputNumber id="courseCode" class="form-control" @bind-Value="@CourseId.Id" placeholder="Enter Six Digit Course Code e.g(123456)"></InputNumber>
+                            <ValidationMessage For="@(() => CourseId.Id)" />
+                        </div>
+                        <button type="submit" id="but" class="btn btn-primary" @onclick="@Submit">Add Course</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code{
+
+    CourseId CourseId = new CourseId();
+    User profile { get; set; }
+    private int[] _coursearray;
+
+    public void Show(User _user)
+    {
+        profile = _user;
+        ResetDialog();
+        CourseId.ShowDialog = true;
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        CourseId.ShowDialog = false;
+        StateHasChanged();
+    }
+
+    private void ResetDialog()
+    {
+        CourseId = new CourseId { };
+    }
+
+    private async void Submit()
+    {
+        string parsedId = CourseId.Id.ToString();
+        // First, check if the course exists.
+        var response = await Http.GetFromJsonAsync<Boolean>($"api/courses/check/{parsedId}");
+
+        // If it is true - the course does exist
+        if (response)
+        {
+            if (String.IsNullOrEmpty(profile.Coursecodes))
+            {
+                User sender = new User();
+                sender.Id = profile.Id;
+                sender.Coursecodes = parsedId;
+
+                // Add the Course id to the Users list of courses.
+                await Http.PutAsJsonAsync($"api/users/addcourse/{sender}", sender);
+
+                Course senderCourse = new Course();
+                senderCourse.Id = parsedId;
+                senderCourse.Students = profile.Id;
+
+                // Add the Student id to the Courses list of students.
+                await Http.PutAsJsonAsync($"api/courses/adduserid/{senderCourse}", senderCourse);
+            }
+            else
+            {
+                _coursearray = profile.Coursecodes.Split(' ').Select(Int32.Parse).ToArray();
+                if (!_coursearray.Contains(CourseId.Id))
+                {
+                    string courselist = parsedId + " " + profile.Coursecodes;
+
+                    User sender = new User();
+                    sender.Id = profile.Id;
+                    sender.Coursecodes = courselist;
+
+                    // Add the Course id to the Users list of courses.
+                    await Http.PutAsJsonAsync($"api/users/addcourse/{sender}", sender);
+
+                    Course senderCourse = new Course();
+                    senderCourse.Id = parsedId;
+                    senderCourse.Students = profile.Id;
+
+                    // Add the Student id to the Courses list of students.
+                    await Http.PutAsJsonAsync($"api/courses/adduserid/{senderCourse}", senderCourse);
+                }
+            }
+
+
+        }
+        CourseId.ShowDialog = false;
+        StateHasChanged();
+        NavManager.NavigateTo($"profile/{profile.Id}");
+    }
+}

@@ -1,0 +1,48 @@
+﻿* {
+    font-family: "Open Sans", sans-serif;
+
+}
+
+#exampleModal {
+    background: rgba(23, 23, 21, 0.73);
+}
+
+.modal-dialog {
+    margin-top: 10rem;
+    margin-left: 38rem;
+    justify-content: center;
+    align-items: center;
+
+    /*border-radius: 0rem;*/
+}
+
+#titleLabel {
+    font-weight:700;
+}
+
+.close {
+    color: white;
+}
+
+.modal-header {
+    background-color: #2d7f7c;
+    font-family: 'Monda', sans-serif;
+    font-weight: 700;
+    color: #ebf5f5;
+}
+
+.modal-body {
+    padding-top: 1rem;
+    background: #e8eaeb;
+    font-weight: 600;
+    color: #09635e;
+}
+
+
+#but {
+    margin-top: 1rem;
+    font-weight: 600;
+    background-color: #1b807c;
+    border-radius: 0.7rem;
+    color: #ebf5f5;
+}

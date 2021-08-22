@@ -1,0 +1,82 @@
+﻿@if (Reg.ShowDialog)
+{
+    <div class="modal fade show d-block" id="exampleModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="titleLabel">Register As:</h5>
+                    <button type="button" class="close" @onclick="@Close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@Reg">
+                        <DataAnnotationsValidator />
+                        <div class="form-group">
+                            <button type="button" id="but" class="btn btn-primary" @onclick="@AsStudent">Student</button>
+                            <button type="button" id="but" class="btn btn-primary" @onclick="@AsTeacher">Instructor</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<AddStudRegDialog @ref="AddStudRegDialog">
+
+</AddStudRegDialog>
+
+<AddTeachRegDialog @ref="AddTeachRegDialog">
+
+</AddTeachRegDialog>
+
+@code {
+
+    Reg Reg = new Reg();
+
+    public void Show()
+    {
+        ResetDialog();
+        Reg.ShowDialog = true;
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        Reg.ShowDialog = false;
+        StateHasChanged();
+    }
+
+    private void ResetDialog()
+    {
+        Reg = new Reg { };
+    }
+
+    public AddStudRegDialog AddStudRegDialog
+    {
+        get;
+        set;
+    }
+
+    private void AsStudent()
+    {
+        AddStudRegDialog.Show();
+        Reg.ShowDialog = false;
+        StateHasChanged();
+    }
+
+    public AddTeachRegDialog AddTeachRegDialog
+    {
+        get;
+        set;
+    }
+
+    private void AsTeacher()
+    {
+        AddTeachRegDialog.Show();
+        Reg.ShowDialog = false;
+        StateHasChanged();
+    }
+
+}

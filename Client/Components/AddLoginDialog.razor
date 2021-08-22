@@ -1,0 +1,73 @@
+﻿@using TransGo_Alpha.Shared
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+@if (Login.ShowDialog)
+{
+    <div class="modal fade show d-block" id="exampleModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="titleLabel">Login</h5>
+                    <button type="button" class="close" @onclick="@Close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@Login">
+                        <DataAnnotationsValidator />
+                        <div class="form-group">
+                            <label for="coursey">Email:</label>
+                            <InputText id="email" class="form-control" @bind-Value="@Login.email" placeholder="Email"></InputText>
+                            <ValidationMessage For="@(() => Login.email)" />
+
+                            <label for="coursey" id="pass-label">Password:</label>
+                            <InputText type="password" id="password" class="form-control" @bind-Value="@Login.password" placeholder="Password"></InputText>
+                            <ValidationMessage For="@(() => Login.password)" />
+                        </div>
+                        <button type="submit" id="but" class="btn btn-primary" @onclick="@CheckLogin">Login</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code
+{
+    User userinfo = new User();
+    Login Login = new Login();
+
+    public void Show()
+    {
+        ResetDialog();
+        Login.ShowDialog = true;
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        Login.ShowDialog = false;
+        StateHasChanged();
+    }
+
+    private void ResetDialog()
+    {
+        Login = new Login { };
+    }
+
+    private async void CheckLogin()
+    {
+        UserLogin userlogin = new UserLogin();
+        userlogin.Email = Login.email;
+        userlogin.Password = Login.password;
+
+        userinfo = await Http.GetFromJsonAsync<User>($"api/users/{Login.email}/{Login.password}");
+        if(userinfo != null)
+        {
+            NavManager.NavigateTo($"profile/{userinfo.Id}");
+        }
+
+    }
+
+}

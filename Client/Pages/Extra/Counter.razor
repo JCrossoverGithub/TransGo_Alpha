@@ -10,6 +10,7 @@
 
 @code {
     private int currentCount = 0;
+    User userinfo = new User();
 
     async void IncrementCount()
     {
@@ -26,4 +27,10 @@
 
         currentCount++;
     }
+
+    async void Login()
+    {
+        //userinfo = await Http.GetFromJsonAsync<User>($"api/users/{userlogin}");
+    }
+
 }

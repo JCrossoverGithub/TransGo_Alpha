@@ -1,0 +1,119 @@
+﻿@inject HttpClient Http
+@inject NavigationManager NavManager
+@using TransGo_Alpha.Shared
+
+@if (Student.ShowDialog)
+{
+    <div class="modal fade show d-block" id="exampleModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="titleLabel">Add Student</h5>
+                    <button type="button" class="close" @onclick="@Close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@Student">
+                        <DataAnnotationsValidator />
+                        <div class="form-group">
+                            <label for="coursey">Student Email:</label>
+                            <InputText id="courseCode" class="form-control" @bind-Value="@Student.email" placeholder="Enter Student Email (jimmy01@aol.com)"></InputText>
+                        </div>
+                        <button type="submit" id="but" class="btn btn-primary" @onclick="@Submit">Add Student</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code{
+
+    Student Student = new Student();
+    string courseid { get; set; }
+    private string[] student_coursearray;
+    private string[] course_studentarray;
+
+
+    public void Show(string _courseid)
+    {
+        courseid = _courseid;
+        ResetDialog();
+        Student.ShowDialog = true;
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        Student.ShowDialog = false;
+        StateHasChanged();
+    }
+
+    private void ResetDialog()
+    {
+        Student = new Student { };
+    }
+
+    private async void Submit()
+    {
+        // Add check to make sure teachers cant be added to classes
+
+        var profile = await Http.GetFromJsonAsync<User>($"api/users/studentemail/{Student.email}");
+        var _course = await Http.GetFromJsonAsync<Course>($"api/courses/{courseid}");
+
+        if (String.IsNullOrEmpty(profile.Coursecodes))
+        {
+            User sender = new User();
+            sender.Id = profile.Id;
+            sender.Coursecodes = courseid;
+
+            // Add the Course id to the Users list of courses.
+            await Http.PutAsJsonAsync($"api/users/addcourse/{sender}", sender);
+
+        }
+        else
+        {
+            student_coursearray = profile.Coursecodes.Split(' ');
+            if (!student_coursearray.Contains(_course.Id))
+            {
+                string newarr = profile.Coursecodes + " " + _course.Id;
+
+                User senderUser = new User();
+                senderUser.Id = profile.Id;
+                senderUser.Coursecodes = newarr;
+
+                // Add the Student id to the Courses list of students.
+                await Http.PutAsJsonAsync($"api/users/addcourse/{senderUser}", senderUser);
+            }
+        }
+
+
+        if(String.IsNullOrEmpty(_course.Students))
+        {
+            Course senderCourse = new Course();
+            senderCourse.Id = courseid;
+            senderCourse.Students = profile.Id;
+
+            // Add the Student id to the Courses list of students.
+            await Http.PutAsJsonAsync($"api/courses/adduserid/{senderCourse}", senderCourse);
+        }
+        else
+        {
+            course_studentarray = _course.Students.Split(' ');
+            if (!course_studentarray.Contains(profile.Id))
+            {
+                string newarr = _course.Students + " " + profile.Id;
+
+                Course senderCourse = new Course();
+                senderCourse.Id = courseid;
+                senderCourse.Students = newarr;
+
+                // Add the Student id to the Courses list of students.
+                await Http.PutAsJsonAsync($"api/courses/adduserid/{senderCourse}", senderCourse);
+            }
+        }
+
+
+    }
+}
