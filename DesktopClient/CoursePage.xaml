@@ -1,0 +1,44 @@
+﻿<Window x:Class="DesktopClient.CoursePage"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:local="clr-namespace:DesktopClient"
+        mc:Ignorable="d"
+        Title="Course Page" Height="618" Width="1200">
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="7*"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.1*"/>
+            <ColumnDefinition Width="5*">
+            </ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <GridSplitter Grid.Column="0" Grid.Row="0" Width="2"/>
+        <GridSplitter Grid.Column="0" Grid.Row="1" Width="2"/>
+
+        <Grid Grid.Row="0" Grid.Column="0">
+            <materialDesign:PackIcon Kind="FileDocument" Grid.Row="0" Foreground="#1ca0a0" Margin="16,14,0,0" Height="46" Width="37" RenderTransformOrigin="0.5,0.5"/>
+            <TextBlock Grid.Row="0" Foreground="#1ca0a0" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="28" FontWeight="UltraBold" FontFamily="Franklin Gothic Medium" Height="32" Width="98">TransGo</TextBlock>
+        </Grid>
+
+        <TextBlock Grid.Row="0" Grid.Column="1" Text="CS 220" FontWeight="Bold" FontFamily="Global Sans Serif" FontSize="24" Margin="19,25,10,19"/>
+
+        <WrapPanel Name="ClassPanel" Grid.Column="1" Grid.Row="1" Margin="19,0,7,10">
+            <Button
+                Style="{StaticResource MaterialDesignRaisedLightButton}"
+                Height="94"
+                Click="btnTranscribe"
+                materialDesign:ButtonAssist.CornerRadius="5"
+                ToolTip="MaterialDesignRaisedLightButton with Round Corners" Width="187" Background="#1b807c" Foreground="White">
+                <TextBlock Text="New Transcript" />
+            </Button>
+        </WrapPanel>
+
+    </Grid>
+</Window>

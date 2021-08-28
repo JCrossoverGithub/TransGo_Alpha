@@ -40,9 +40,10 @@
         
         <Button Grid.Row="1" Grid.Column="0" Content="Remove Some" Margin="-1,285,1,210"/>
 
-        <WrapPanel Name="ClassPanel" Grid.Column="1" Grid.Row="1" Margin="19,0,7,10">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="1">
+            <WrapPanel Name="ClassPanel" Grid.Column="1" Grid.Row="1" Margin="19,0,7,10">
 
-            <materialDesign:Card 
+                <materialDesign:Card 
                       Background="#f0f2f5"
                       Foreground="{DynamicResource PrimaryHueDarkForegroundBrush}"
                       Padding="0"
@@ -50,25 +51,25 @@
                       materialDesign:ShadowAssist.ShadowEdges="Right,Bottom"
                       Margin="0,0,29,29"
                       Width="280">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="94" />
-                        <RowDefinition Height="35" />
-                    </Grid.RowDefinitions>
-                    <TextBlock
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="94" />
+                            <RowDefinition Height="35" />
+                        </Grid.RowDefinitions>
+                        <TextBlock
                             Grid.Row="0"
                             Margin="11,17,0,49"
                             Style="{StaticResource MaterialDesignHeadline5TextBlock}"
                             Text="CS 220" Foreground="#FF004D40" FontWeight="SemiBold" FontSize="22"/>
-                    <TextBlock
+                        <TextBlock
                             Grid.Row="0"
                             Margin="12,45,0,22"
                             Style="{StaticResource MaterialDesignHeadline5TextBlock}"
                             Text="Applied Discrete Mathmatics" FontWeight="Light" Foreground="#FF004D40" FontSize="12"/>
 
-                    <Rectangle Fill="#1b807c" Grid.Row="2"/>
+                        <Rectangle Fill="#1b807c" Grid.Row="1"/>
 
-                    <TextBlock
+                        <TextBlock
                             Grid.Row="1"
                             Margin="13,0,0,0"
                             VerticalAlignment="Center"
@@ -76,14 +77,17 @@
                             Style="{StaticResource MaterialDesignBody2TextBlock}"
                             Text="9 Transcripts" FontSize="10" Width="94"/>
 
-                </Grid>
-            </materialDesign:Card>
+                    </Grid>
+                </materialDesign:Card>
 
 
 
 
 
-        </WrapPanel>
+
+
+            </WrapPanel>
+        </ScrollViewer>
 
     </Grid>
 

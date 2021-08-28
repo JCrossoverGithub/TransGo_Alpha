@@ -12,25 +12,17 @@
         xmlns:local="clr-namespace:DesktopClient"
         mc:Ignorable="d"
         Title="TestMaterial" Height="618" Width="1046">
-
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition>
-
-            </RowDefinition>
-            <RowDefinition>
-
-            </RowDefinition>
-        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="37*">
-
-            </ColumnDefinition>
-            <ColumnDefinition Width="486*"/>
-            <ColumnDefinition Width="523*">
-
-            </ColumnDefinition>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="4*"/>
         </Grid.ColumnDefinitions>
+
+        <Button Click="btnWork" Content="Button" Grid.Column="0"/>
+        <WrapPanel Name="ClassPanel"  Grid.Column="1" Margin="20,0,7,10">
+
+        </WrapPanel>
     </Grid>
+    
 
 </Window>
