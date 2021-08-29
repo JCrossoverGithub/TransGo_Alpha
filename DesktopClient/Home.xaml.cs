@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MaterialDesignThemes;
 using MaterialDesignColors;
+using DesktopClient.Models;
+using DesktopClient.Data;
 
 namespace DesktopClient
 {
@@ -21,23 +23,40 @@ namespace DesktopClient
     /// </summary>
     public partial class Home : Window
     {
-        public Home()
+        User _user;
+        public Home(User user)
         {
+            _user = user; // Use MVVM to share objects/data between windows in future
             InitializeComponent();
+            LoadCourses();
         }
 
-        private void btnAdd(object sender, RoutedEventArgs e)
+
+        private void LoadCourses()
         {
-            /*
-            var newbutton = new Button() { Content = "myButton" }; // Creating button
-            ClassPanel.Children.Add(newbutton);
-            */
-            AddCourse();
+            int[] _coursearray;
 
+            if(!String.IsNullOrEmpty(_user.Coursecodes))
+            {
+                _coursearray = _user.Coursecodes.Split(' ').Select(Int32.Parse).ToArray();
+                foreach(int coursecode in _coursearray)
+                {
+                    GetCourseData(coursecode);
+                }
+            }
         }
 
+        private void GetCourseData(int _coursecode)
+        {
+            using CourseDbContext db = new CourseDbContext();
+            var returnedcourse = db.tblCourses.FirstOrDefault(a => a.Id == _coursecode.ToString());
+            if(returnedcourse != null)
+            {
+                AddCourse(returnedcourse);
+            }
+        }
 
-        private void AddCourse()
+        private void AddCourse(Course course)
         {
             var bc = new BrushConverter();
 
@@ -46,7 +65,7 @@ namespace DesktopClient
             {
                 Width = 280,
                 Height = 129,
-                Background = (Brush)bc.ConvertFrom("#f0f2f5"),
+                Background = (Brush)bc.ConvertFrom("#f0f2f5"), //the (Brush) could be how i do shadow
                 Margin = new Thickness(0, 0, 29, 29)
             };
 
@@ -73,7 +92,7 @@ namespace DesktopClient
             // Create Course Number Text
             TextBlock coursenum = new TextBlock
             {
-                Text = "CS 310",
+                Text = course.CourseNum,
                 Foreground = (Brush)bc.ConvertFrom("#004D40"),
                 FontWeight = FontWeights.SemiBold,
                 FontSize = 22,
@@ -85,7 +104,7 @@ namespace DesktopClient
             // Create Course Name Text
             TextBlock coursename = new TextBlock
             {
-                Text = "Data Structures and Algorithms II",
+                Text = course.CourseName,
                 Foreground = (Brush)bc.ConvertFrom("#004D40"),
                 FontWeight = FontWeights.Light,
                 FontSize = 12,
@@ -122,7 +141,7 @@ namespace DesktopClient
 
             ncgrid.MouseLeftButtonDown += (sen, evg) =>
             {
-                CoursePage win = new CoursePage();
+                ClassPage win = new ClassPage(course, _user.Id);
                 win.Show();
             };
 
@@ -131,6 +150,13 @@ namespace DesktopClient
 
             // Add new course card to WrapPanel
             ClassPanel.Children.Add(newcourse);
+        }
+
+        private void logout(object sender, RoutedEventArgs e)
+        {
+            MainWindow main = new MainWindow();
+            main.Show();
+            this.Close();
         }
     }
 }

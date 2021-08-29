@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DesktopClient.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,11 +18,18 @@ namespace DesktopClient
     /// <summary>
     /// Interaction logic for CoursePage.xaml
     /// </summary>
-    public partial class CoursePage : Window
+    public partial class ClassPage : Window
     {
-        public CoursePage()
+        Course _course;
+        string _userid;
+        public ClassPage(Course course, string userid)
         {
+            _course = course;
+            _userid = userid;
             InitializeComponent();
+            coursenumber.Text = _course.CourseNum;
+            // Need to add check so only teachers can start a transcript.
+
         }
 
         private void btnTranscribe(object sender, RoutedEventArgs e)

@@ -36,7 +36,7 @@
 
         <TextBlock Grid.Row="0" Grid.Column="1" Text="Your Courses" FontWeight="Bold" FontFamily="Global Sans Serif" FontSize="24" Margin="19,25,10,19"/>
 
-        <Button Click="btnAdd" Grid.Row="1" Grid.Column="0" Content="Add More"/>
+        <Button Name="addbutton" Click="logout" Grid.Row="1" Grid.Column="0" Content="Add More"/>
         
         <Button Grid.Row="1" Grid.Column="0" Content="Remove Some" Margin="-1,285,1,210"/>
 

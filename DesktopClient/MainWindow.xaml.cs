@@ -33,9 +33,15 @@ namespace DesktopClient
             var _user = db.tblUsers.FirstOrDefault(a => a.Email == tbEmail.Text);
             if (_user != null && tbPass.Text == _user.Password)
             {
+                /*
                 loginColor.Fill = new SolidColorBrush(Colors.Green);
                 loginText.Text = "Logged In";
                 userinfo.Text = _user.Firstname + " " + _user.Lastname;
+                */
+
+                Home _home = new Home(_user);
+                _home.Show();
+                this.Close();
             }
             else
             {
