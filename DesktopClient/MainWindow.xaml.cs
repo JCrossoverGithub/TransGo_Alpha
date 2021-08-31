@@ -51,6 +51,9 @@ namespace DesktopClient
             }
         }
 
+        private void btnworkpls(object sender, RoutedEventArgs e)
+        {
 
+        }
     }
 }

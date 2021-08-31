@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,6 +23,9 @@ namespace DesktopClient
     {
         Course _course;
         string _userid;
+
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+        CancellationToken internalToken;
         public ClassPage(Course course, string userid)
         {
             _course = course;
@@ -34,7 +38,9 @@ namespace DesktopClient
 
         private void btnTranscribe(object sender, RoutedEventArgs e)
         {
-
+            var instance = new GoogleAPI.InfiniteStreaming();
+            CancellationToken internalToken = tokenSource.Token;
+            instance.StartTranslate(internalToken);
         }
     }
 }

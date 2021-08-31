@@ -18,6 +18,7 @@
         <Ellipse Name="loginColor" Width="20" Height="20" Stroke="White" Fill="Red" Margin="38,35,741,378"/>
         <TextBlock Name="loginText" Text="Logged Out" TextWrapping="Wrap" FontSize="20" Margin="67,30,496,349"/>
         <TextBlock Name="userinfo" Text="" FontSize="17" TextWrapping="Wrap" Margin="586,292,69,84"/>
+        <Button Click="btnworkpls" Content="work bitch" Margin="326,330,345,72"/>
 
     </Grid>
 </Window>

@@ -29,14 +29,6 @@ namespace GoogleAPI
 {
     public class InfiniteStreaming
     {
-        NpgsqlConnection dbcon = new NpgsqlConnection("Server=localhost; Port=5433; User ID=postgres; Password=jmpassword; Database=WorkDB");
-        private NpgsqlCommand cmd;
-        private string sql = null;
-        private NpgsqlCommand cmd1;
-        private string sqll = null;
-        private NpgsqlCommand cmd2;
-        private string sql2 = null;
-
         bool translation = true;
 
         private const int SampleRate = 16000;
@@ -93,14 +85,16 @@ namespace GoogleAPI
         private async Task Connect()
         {
             System.Diagnostics.Debug.WriteLine("CONEEEEEE");
+            /*
             _hubConnection = new HubConnectionBuilder()
-            .WithUrl("https://localhost:44349/chathub")
+            .WithUrl("https://localhost:44396/chathub")
             .Build();
 
             System.Diagnostics.Debug.WriteLine("DE");
             await _hubConnection.StartAsync();
 
             System.Diagnostics.Debug.WriteLine("BBBBBBB");
+            */
         }
 
 
@@ -112,7 +106,6 @@ namespace GoogleAPI
             using (var microphone = StartListening())
             {
                 _ = Connect();
-                dbcon.Open();
 
                 while (!cancelToken.IsCancellationRequested)
                 {
@@ -125,7 +118,6 @@ namespace GoogleAPI
                     }
                     await TransferMicrophoneChunkAsync();
                 }
-                dbcon.Close();
 
             }
         }
@@ -214,7 +206,6 @@ namespace GoogleAPI
                 var wine = response.Results.First();
                 string grape = wine.Alternatives[0].Transcript;
 
-                string username = "";
                 string message = wine.Alternatives[0].Transcript;
                 //Console.WriteLine($"Transcr: {grape}");
 
@@ -251,40 +242,29 @@ namespace GoogleAPI
                 // Get final result transcript
                 var finalResult = response.Results.FirstOrDefault(r => r.IsFinal);
 
-                string transcript;
                 int isfinal;
 
 
                 if (wine.IsFinal)
                 {
                     // If isFinal is true, append the new sentence to the transcript.
-                    sqll = @"select * from sync_transcript(:_tran)";
-                    cmd1 = new NpgsqlCommand(sqll, dbcon);
-                    cmd1.Parameters.AddWithValue("_tran", grape);
-                    int syncedtextt = (int)cmd1.ExecuteScalar();
-
-                    sql2 = @"UPDATE tbl_translate SET temptext = ' ' WHERE id = 1;";
-                    cmd2 = new NpgsqlCommand(sql2, dbcon);
-                    cmd2.ExecuteScalar();
-
+                    System.Diagnostics.Debug.WriteLine("DONE IS FINAL!!!!!");
                     /* Signal R Stuff */
+                    /*
                     isfinal = 1;
                     _hubConnection.SendAsync("SendMessage", isfinal, message);
-
+                    */
 
 
 
                 }
                 else
                 {
-                    //System.Diagnostics.Debug.WriteLine(grape);
+                    System.Diagnostics.Debug.WriteLine(grape);
+                    /*
                     isfinal = 0;
                     _hubConnection.SendAsync("SendMessage", isfinal, message);
-
-                    sql = @"select * from update_translate(:_textdata)";
-                    cmd = new NpgsqlCommand(sql, dbcon);
-                    cmd.Parameters.AddWithValue("_textdata", grape);
-                    int syncedtext = (int)cmd.ExecuteScalar();
+                    */
                 }
 
 
