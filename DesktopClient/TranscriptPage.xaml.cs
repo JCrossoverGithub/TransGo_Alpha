@@ -1,8 +1,4 @@
-﻿using DesktopClient.Data;
-using DesktopClient.Models;
-using Microsoft.AspNetCore.SignalR.Client; // REMOVE AFTER TESTING
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,29 +12,29 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using DesktopClient.Data;
+using DesktopClient.Models;
+using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.EntityFrameworkCore;
 
 namespace DesktopClient
 {
     /// <summary>
-    /// Interaction logic for CoursePage.xaml
+    /// Interaction logic for TranscriptPage.xaml
     /// </summary>
-    public partial class ClassPage : Window
+    public partial class TranscriptPage : Window
     {
         Course _course;
         string _userid;
         Lecture _transcript = new Lecture();
-        private HubConnection _hubConnection; // REMOVE AFTER TESTING
-
+        private HubConnection _hubConnection;
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         CancellationToken internalToken;
-        public ClassPage(Course course, string userid)
+        public TranscriptPage(Course course, string userid)
         {
             _course = course;
             _userid = userid;
             InitializeComponent();
-            coursenumber.Text = _course.CourseNum;
-            // Need to add check so only teachers can start a transcript.
-
         }
         private async void CreateTranscript()
         {
@@ -64,13 +60,12 @@ namespace DesktopClient
                 await db2.SaveChangesAsync();
                 db2.Dispose();
             }
-            else 
+            else
             {
                 _course.Transcripts = _course.Transcripts + " " + _transcript.Id;
                 db2.Entry(_course).State = EntityState.Modified;
                 await db2.SaveChangesAsync();
             }
-
         }
         private async void BeginSignalR(string transcriptid)
         {
@@ -79,39 +74,15 @@ namespace DesktopClient
             .Build();
             await _hubConnection.StartAsync();
         }
-        private void btnTranscribe(object sender, RoutedEventArgs e)
+        private void btnStart(object sender, RoutedEventArgs e)
         {
             CreateTranscript();
-            
+
             var instance = new GoogleAPI.InfiniteStreaming();
             CancellationToken internalToken = tokenSource.Token;
             instance.StartTranslate(internalToken, _transcript.Id);
-            
+
             BeginSignalR(_transcript.Id);
-
-        }
-
-        private async void btnTestSignalR(object sender, RoutedEventArgs e)
-        {
-            using LectureDbContext db3 = new LectureDbContext();
-            var trans = db3.tblLectures.FirstOrDefault(a => a.Id == _transcript.Id);
-            trans.Transcript = " ";
-            for (int i = 0; i < 500; i++)
-            {
-                string pp = i.ToString();
-                await _hubConnection.SendAsync("SendGroupMessage", _transcript.Id, 1, pp);
-                trans.Transcript = trans.Transcript + " " + pp;
-                db3.SaveChanges();
-            }
-            await _hubConnection.SendAsync("SendGroupMessage", _transcript.Id, 1, "ALL DONE!!!");
-            trans.Transcript = trans.Transcript + " " + "ALL DONE!!!";
-            db3.SaveChanges();
-            db3.Dispose();
-        }
-
-        private void btnStopTranscription(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }

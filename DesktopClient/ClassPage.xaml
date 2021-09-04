@@ -38,6 +38,22 @@
                 ToolTip="MaterialDesignRaisedLightButton with Round Corners" Width="187" Background="#1b807c" Foreground="White">
                 <TextBlock Text="New Transcript" />
             </Button>
+            <Button
+                Style="{StaticResource MaterialDesignRaisedLightButton}"
+                Height="94"
+                Click="btnStopTranscription"
+                materialDesign:ButtonAssist.CornerRadius="5"
+                ToolTip="MaterialDesignRaisedLightButton with Round Corners" Width="187" Background="#1b807c" Foreground="White">
+                <TextBlock Text="Stop Transcript" />
+            </Button>
+            <Button
+                Style="{StaticResource MaterialDesignRaisedLightButton}"
+                Height="94"
+                Click="btnTestSignalR"
+                materialDesign:ButtonAssist.CornerRadius="5"
+                ToolTip="MaterialDesignRaisedLightButton with Round Corners" Width="187" Background="#1b807c" Foreground="White">
+                <TextBlock Text="Test Live SignalR" />
+            </Button>
         </WrapPanel>
 
     </Grid>

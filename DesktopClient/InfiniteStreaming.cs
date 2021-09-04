@@ -20,6 +20,8 @@ using NAudio.Wave;
 using System.ComponentModel;
 using System.Threading;
 using Microsoft.AspNetCore.SignalR.Client;
+using DesktopClient.Data;
+using DesktopClient.Models;
 
 /*
  * System.Diagnostics.Debug.WriteLine
@@ -29,7 +31,8 @@ namespace GoogleAPI
 {
     public class InfiniteStreaming
     {
-        bool translation = true;
+        private string _transcriptid;
+        Lecture trans { get; set; }
 
         private const int SampleRate = 16000;
         private const int ChannelCount = 1;
@@ -66,6 +69,8 @@ namespace GoogleAPI
         private DateTime _rpcStreamDeadline;
 
         private HubConnection _hubConnection;
+        
+        LectureDbContext db3 = new LectureDbContext();
 
         /// <summary>
         /// The task indicating when the next response is ready, or when we've
@@ -78,23 +83,15 @@ namespace GoogleAPI
         public InfiniteStreaming()
         {
             _client = SpeechClient.Create();
-
         }
 
 
         private async Task Connect()
         {
-            System.Diagnostics.Debug.WriteLine("CONEEEEEE");
-            /*
             _hubConnection = new HubConnectionBuilder()
             .WithUrl("https://localhost:44396/chathub")
             .Build();
-
-            System.Diagnostics.Debug.WriteLine("DE");
             await _hubConnection.StartAsync();
-
-            System.Diagnostics.Debug.WriteLine("BBBBBBB");
-            */
         }
 
 
@@ -250,21 +247,16 @@ namespace GoogleAPI
                     // If isFinal is true, append the new sentence to the transcript.
                     System.Diagnostics.Debug.WriteLine("DONE IS FINAL!!!!!");
                     /* Signal R Stuff */
-                    /*
                     isfinal = 1;
-                    _hubConnection.SendAsync("SendMessage", isfinal, message);
-                    */
-
-
-
+                    _hubConnection.SendAsync("SendGroupMessage", _transcriptid, isfinal, message);
+                    trans.Transcript = trans.Transcript + " " + message;
+                    db3.SaveChanges();
                 }
                 else
                 {
                     System.Diagnostics.Debug.WriteLine(grape);
-                    /*
                     isfinal = 0;
-                    _hubConnection.SendAsync("SendMessage", isfinal, message);
-                    */
+                    _hubConnection.SendAsync("SendGroupMessage", _transcriptid, isfinal, message);
                 }
 
 
@@ -385,13 +377,13 @@ namespace GoogleAPI
         /// </summary>
         public static async Task<int> RecognizeAsync(CancellationToken cancelToken)
         {
-            var instance = new InfiniteStreaming();
-            await instance.RunAsync(cancelToken);
+            //var instance = new InfiniteStreaming();
+            //await instance.RunAsync(cancelToken);
             return 0;
         }
 
 
-        public void StartTranslate(CancellationToken cancelToken)
+        public async void StartTranslate(CancellationToken cancelToken, string transcriptid)
         {
 
             cancelToken.ThrowIfCancellationRequested();
@@ -403,6 +395,15 @@ namespace GoogleAPI
                 RecognizeAsync(cancelToken);
             };
             worker.RunWorkerAsync();
+
+            _transcriptid = transcriptid;
+            _hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:44396/chathub")
+            .Build();
+            await _hubConnection.StartAsync();
+
+            trans = db3.tblLectures.FirstOrDefault(a => a.Id == _transcriptid);
+            trans.Transcript = " ";
 
         }
 

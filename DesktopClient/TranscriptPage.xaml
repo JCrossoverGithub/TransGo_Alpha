@@ -1,0 +1,22 @@
+﻿<Window x:Class="DesktopClient.TranscriptPage"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DesktopClient"
+        mc:Ignorable="d"
+        Title="TranscriptPage" Height="600" Width="550">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.2*"></ColumnDefinition>
+            <ColumnDefinition Width="5*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <GridSplitter Grid.Column="0" Grid.Row="0" Width="2"/>
+        <StackPanel Grid.Column="0">
+            <Button Content="Start" Click="btnStart" Background="Green"></Button>
+            <Button Content="Pause" Click="btnPause" Background="Orange"></Button>
+            <Button Content="End" Click="btnStop" Background="Red"></Button>
+        </StackPanel>
+        <TextBlock Grid.Column="1" Padding="10" Text=""></TextBlock>
+    </Grid>
+</Window>

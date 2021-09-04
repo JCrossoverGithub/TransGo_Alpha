@@ -1,8 +1,10 @@
-﻿@page "/transcriptpage/{id}"
+﻿@page "/transcriptpage/{transcriptid}"
 @layout EmptyLayout
 @inject NavigationManager NavManager
 @inject HttpClient Http
+@implements IAsyncDisposable
 @using TransGo_Alpha.Shared
+@using Microsoft.AspNetCore.SignalR.Client
 
 <div class="grid-container">
     <div class="grid-item grid-item-1">
@@ -10,15 +12,76 @@
         </div>
     </div>
     <div class="grid-item grid-item-2">
-        <textarea class="transcriptbox" rows="50" cols="95"></textarea>
+        <textarea class="transcriptbox" @bind="@LiveTranscript" rows="50" cols="95"></textarea>
     </div>
 </div>
 
 @code {
-
     [Parameter]
-    public string Id { get; set; }
+    public string transcriptId { get; set; }
+
+    private string LiveTranscript;
+    private string Transcript;
+    private string TempText;
+    private string userInput;
+    private string messageInput;
+
+    private HubConnection _hubConnection;
+
+    Lecture _lecture { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _lecture = await Http.GetFromJsonAsync<Lecture>($"api/lectures/test/{transcriptId}");
+        if(!String.IsNullOrEmpty(_lecture.Transcript))
+        {
+            LiveTranscript = _lecture.Transcript;
+        }
 
 
+        _hubConnection = new HubConnectionBuilder()
+        .WithUrl(NavManager.ToAbsoluteUri("/chathub"))
+        .Build();
+
+        _hubConnection.On<int, string>("ReceiveMessage", ReceiveMessage);
+        await _hubConnection.StartAsync();
+        await JoinGroup();
+    }
+
+    private async Task JoinGroup()
+    {
+        await _hubConnection.InvokeAsync("AddClass", transcriptId);
+    }
+
+    private async Task Send()
+    {
+        await _hubConnection.SendAsync("SendMessage", userInput, messageInput);
+    }
+
+    public bool IsConnected => _hubConnection.State == HubConnectionState.Connected;
+
+    private void ReceiveMessage(int isfinal, string message)
+    {
+        if (isfinal == 1)
+        {
+            Console.WriteLine("FINAL");
+            Transcript = Transcript + message;
+            TempText = " ";
+
+        }
+        else
+        {
+            Console.WriteLine("STILL TALKING");
+            TempText = message;
+        }
+        LiveTranscript = Transcript + TempText;
+        StateHasChanged();
+    }
+
+
+    public async ValueTask DisposeAsync()
+    {
+        await _hubConnection.DisposeAsync();
+    }
 
 }
