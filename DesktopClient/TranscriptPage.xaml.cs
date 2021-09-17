@@ -27,24 +27,24 @@ namespace DesktopClient
         Course _course;
         string _userid;
         Lecture _transcript = new Lecture();
-        private HubConnection _hubConnection;
-        CancellationTokenSource tokenSource = new CancellationTokenSource();
-        CancellationToken internalToken;
+        InfiniteStreaming translate;
         public TranscriptPage(Course course, string userid)
         {
+            translate = new InfiniteStreaming(this);
             _course = course;
             _userid = userid;
             InitializeComponent();
         }
-        private async void CreateTranscript()
+        private async Task CreateTranscript()
         {
             var rand = new Random();
             _transcript.Id = (rand.Next(100000, 1000000)).ToString();
             _transcript.HostId = _userid;
             _transcript.CourseId = _course.Id;
-            _transcript.DateOf = "Date";
-            _transcript.TimeStart = "Time1";
+            _transcript.DateOf = "Date4";
+            _transcript.TimeStart = "Time4";
             _transcript.IsComplete = 0;
+            _transcript.Transcript = " ";
 
             using LectureDbContext db = new LectureDbContext();
             db.Add(_transcript);
@@ -67,22 +67,25 @@ namespace DesktopClient
                 await db2.SaveChangesAsync();
             }
         }
-        private async void BeginSignalR(string transcriptid)
+        private async void btnStart(object sender, RoutedEventArgs e)
         {
-            _hubConnection = new HubConnectionBuilder()
-            .WithUrl("https://localhost:44396/chathub")
-            .Build();
-            await _hubConnection.StartAsync();
-        }
-        private void btnStart(object sender, RoutedEventArgs e)
-        {
-            CreateTranscript();
-
+            await CreateTranscript();
+            translate.isRunning = true;
+            var task = Task.Run(() =>
+            {
+                // System.Diagnostics.Debug.WriteLine("inside of task");
+                translate.BeginTranslate(_transcript.Id);
+            });
+            /*
             var instance = new GoogleAPI.InfiniteStreaming();
             CancellationToken internalToken = tokenSource.Token;
             instance.StartTranslate(internalToken, _transcript.Id);
+            */
+        }
 
-            BeginSignalR(_transcript.Id);
+        private void btnStop(object sender, RoutedEventArgs e)
+        {
+            translate.isRunning = false;
         }
     }
 }

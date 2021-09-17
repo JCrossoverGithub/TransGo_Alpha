@@ -14,9 +14,9 @@
         <GridSplitter Grid.Column="0" Grid.Row="0" Width="2"/>
         <StackPanel Grid.Column="0">
             <Button Content="Start" Click="btnStart" Background="Green"></Button>
-            <Button Content="Pause" Click="btnPause" Background="Orange"></Button>
-            <Button Content="End" Click="btnStop" Background="Red"></Button>
+            <Button Content="Pause" Background="Orange"></Button>
+            <Button Content="End" Click="btnStop"  Background="Red"></Button>
         </StackPanel>
-        <TextBlock Grid.Column="1" Padding="10" Text=""></TextBlock>
+        <TextBlock Name="transcript" Grid.Column="1" Padding="10" Text=""></TextBlock>
     </Grid>
 </Window>

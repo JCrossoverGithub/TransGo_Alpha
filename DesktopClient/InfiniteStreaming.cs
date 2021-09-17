@@ -1,39 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Google.Apis.Auth.OAuth2;
+﻿using DesktopClient.Data;
+using DesktopClient.Models;
 using Google.Cloud.Speech.V1;
 using Google.Protobuf;
-using NAudio.Wave;
-using System.ComponentModel;
-using System.Threading;
 using Microsoft.AspNetCore.SignalR.Client;
-using DesktopClient.Data;
-using DesktopClient.Models;
+using NAudio.Wave;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Threading;
 
-/*
- * System.Diagnostics.Debug.WriteLine
- */
-
-namespace GoogleAPI
+namespace DesktopClient
 {
     public class InfiniteStreaming
     {
-        private string _transcriptid;
-        Lecture trans { get; set; }
-
         private const int SampleRate = 16000;
         private const int ChannelCount = 1;
         private const int BytesPerSample = 2;
@@ -42,7 +24,6 @@ namespace GoogleAPI
 
         private readonly SpeechClient _client;
 
-        private BackgroundWorker worker = null;
         /// <summary>
         /// Microphone chunks that haven't yet been processed at all.
         /// </summary>
@@ -68,10 +49,6 @@ namespace GoogleAPI
         /// </summary>
         private DateTime _rpcStreamDeadline;
 
-        private HubConnection _hubConnection;
-        
-        LectureDbContext db3 = new LectureDbContext();
-
         /// <summary>
         /// The task indicating when the next response is ready, or when we've
         /// reached the end of the stream. (The task will complete in either case, with a result
@@ -79,13 +56,15 @@ namespace GoogleAPI
         /// </summary>
         private ValueTask<bool> _serverResponseAvailableTask;
 
+        public Boolean isRunning = false;
 
-        public InfiniteStreaming()
-        {
-            _client = SpeechClient.Create();
-        }
+        public TranscriptPage _main;
 
+        LectureDbContext db = new LectureDbContext();
 
+        private HubConnection _hubConnection;
+
+        Lecture returnedtranscript = new Lecture();
         private async Task Connect()
         {
             _hubConnection = new HubConnectionBuilder()
@@ -94,28 +73,35 @@ namespace GoogleAPI
             await _hubConnection.StartAsync();
         }
 
+        public InfiniteStreaming(TranscriptPage main)
+        {
+            _main = main;
+            System.Diagnostics.Debug.WriteLine("infinite streaming constructor created");
+            _client = SpeechClient.Create();
+        }
 
         /// <summary>
         /// Runs the main loop until "exit" or "quit" is heard.
         /// </summary>
-        private async Task RunAsync(CancellationToken cancelToken)
+        private async Task RunAsync()
         {
+            //System.Diagnostics.Debug.WriteLine("start of runasync");
             using (var microphone = StartListening())
             {
-                _ = Connect();
-
-                while (!cancelToken.IsCancellationRequested)
+                //System.Diagnostics.Debug.WriteLine("start of using(var mic)");
+                while (isRunning)
                 {
-
+                    //System.Diagnostics.Debug.WriteLine("WHILE ISRUNNING = TRUE");
                     await MaybeStartStreamAsync();
                     // ProcessResponses will return false if it hears "exit" or "quit".
-                    if (!ProcessResponses())
+                    if (!ProcessResponses() || !isRunning)
                     {
+                        db.Dispose();
+                        System.Diagnostics.Debug.WriteLine("!ProcessResponse() OR isRunning IS FALSE!!!!");
                         return;
                     }
                     await TransferMicrophoneChunkAsync();
                 }
-
             }
         }
 
@@ -130,7 +116,7 @@ namespace GoogleAPI
             var now = DateTime.UtcNow;
             if (_rpcStream != null && now >= _rpcStreamDeadline)
             {
-                Console.WriteLine($"Closing stream before it times out");
+                System.Diagnostics.Debug.WriteLine($"Closing stream before it times out");
                 await _rpcStream.WriteCompleteAsync();
                 _rpcStream.GrpcCall.Dispose();
                 _rpcStream = null;
@@ -146,8 +132,6 @@ namespace GoogleAPI
             _rpcStreamDeadline = now + s_streamTimeLimit;
             _processingBufferStart = TimeSpan.Zero;
             _serverResponseAvailableTask = _rpcStream.GetResponseStream().MoveNextAsync();
-            var context = new SpeechContext { Phrases = { "threads", "canonical", "is", "to", "gather", "in", "race", "data" } };
-
             await _rpcStream.WriteAsync(new StreamingRecognizeRequest
             {
                 StreamingConfig = new StreamingRecognitionConfig
@@ -157,27 +141,18 @@ namespace GoogleAPI
                         Encoding = RecognitionConfig.Types.AudioEncoding.Linear16,
                         SampleRateHertz = SampleRate,
                         LanguageCode = "en-US",
-                        EnableAutomaticPunctuation = true,
-                        MaxAlternatives = 1,
-                        SpeechContexts = { context }
+                        MaxAlternatives = 1
                     },
                     InterimResults = true,
                 }
-            }); ;
+            });
 
-            Console.WriteLine($"Writing {_processingBuffer.Count} chunks into the new stream.");
+            System.Diagnostics.Debug.WriteLine($"Writing {_processingBuffer.Count} chunks into the new stream.");
             foreach (var chunk in _processingBuffer)
             {
                 await WriteAudioChunk(chunk);
             }
         }
-
-
-        private void ReturnTranslate()
-        {
-            return;
-        }
-
 
         /// <summary>
         /// Processes responses received so far from the server,
@@ -185,114 +160,48 @@ namespace GoogleAPI
         /// </summary>
         private bool ProcessResponses()
         {
-
-            // maybe try putting an instance variable here before the while loop.
-
-            // Take the while loop and make a new function or task for it. Have it in a scope(method) that u can actually call it and edit it.
-
-            while (_serverResponseAvailableTask.IsCompleted && _serverResponseAvailableTask.Result)
+            while (_serverResponseAvailableTask.IsCompleted && _serverResponseAvailableTask.Result && isRunning)
             {
-                // Use this for debugging to see how "be" is printed only when words are being processed.
-                //Console.WriteLine("be");
-
                 var response = _rpcStream.GetResponseStream().Current;
                 _serverResponseAvailableTask = _rpcStream.GetResponseStream().MoveNextAsync();
-
-
-                /// MY EDITS  ////
-                var wine = response.Results.First();
-                string grape = wine.Alternatives[0].Transcript;
-
-                string message = wine.Alternatives[0].Transcript;
-                //Console.WriteLine($"Transcr: {grape}");
-
                 // Uncomment this to see the details of interim results.
-                //Console.WriteLine($"Response: {response}");
-                //Console.WriteLine(response);
-
-                //string cuppa = response.ToString();
-                //response.Results
-
-                /*
-                if(translation)
-                {
-                
-                    var answerz = client.TranslateText(
-                        text: grape,
-                        targetLanguage: "en",  // Russian
-                        sourceLanguage: "es");  // English
-                                                //Console.WriteLine(response.TranslatedText);
-                                                //return response.TranslatedText;
-                    grape = answerz.TranslatedText;
-                }
-                */
-
-                // Sets up SQL function parameters
-                // Runs SQL update_translate function, with the argument grape
-                /*
-                sql = @"select * from update_translate(:_textdata)";
-                cmd = new NpgsqlCommand(sql, dbcon);
-                cmd.Parameters.AddWithValue("_textdata", grape);
-                int syncedtext = (int)cmd.ExecuteScalar();
-                */
-
-                // Get final result transcript
-                var finalResult = response.Results.FirstOrDefault(r => r.IsFinal);
-
-                int isfinal;
-
-
-                if (wine.IsFinal)
-                {
-                    // If isFinal is true, append the new sentence to the transcript.
-                    System.Diagnostics.Debug.WriteLine("DONE IS FINAL!!!!!");
-                    /* Signal R Stuff */
-                    isfinal = 1;
-                    _hubConnection.SendAsync("SendGroupMessage", _transcriptid, isfinal, message);
-                    trans.Transcript = trans.Transcript + " " + message;
-                    db3.SaveChanges();
-                }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine(grape);
-                    isfinal = 0;
-                    _hubConnection.SendAsync("SendGroupMessage", _transcriptid, isfinal, message);
-                }
-
-
-
-
-
+                // System.Diagnostics.Debug.WriteLine($"Response: {response}");
 
                 // See if one of the results is a "final result". If so, we trim our
                 // processing buffer.
-                // var finalResult = response.Results.FirstOrDefault(r => r.IsFinal);
-
-
+                var finalResult = response.Results.FirstOrDefault(r => r.IsFinal);
+                string message = response.Results.First().Alternatives[0].Transcript;
+                int isfinal;
 
                 if (finalResult != null)
                 {
-                    //string transcript = finalResult.Alternatives[0].Transcript;
-                    /*
-                    // Runs every time a word is translated. Console.WriteLine("11111");
                     string transcript = finalResult.Alternatives[0].Transcript;
+                    System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal,(ThreadStart)delegate { _main.transcript.Text = transcript; }); ///
+                    returnedtranscript.Transcript = returnedtranscript.Transcript + " " + transcript; ///
+                    db.Update(returnedtranscript); ///
+                    db.SaveChangesAsync(); /// 
+                    System.Diagnostics.Debug.WriteLine($"Transcript: {transcript}");
 
-                    // If isFinal is true, append the new sentence to the transcript.
-                    sqll = @"select * from sync_transcript(:_tran)";
-                    cmd1 = new NpgsqlCommand(sqll, dbcon);
-                    cmd1.Parameters.AddWithValue("_tran", transcript);
-                    int syncedtextt = (int)cmd1.ExecuteScalar();
-                    */
+                    if(response.Results.First().IsFinal)
+                    {
+                        // If isFinal is true, append the new sentence to the transcript.
+                        System.Diagnostics.Debug.WriteLine("DONE IS FINAL!!!!!");
+                        isfinal = 1;
+                        //_hubConnection.SendAsync("SendGroupMessage", returnedtranscript.Id, isfinal, message);
+                        returnedtranscript.Transcript = returnedtranscript.Transcript + " " + transcript;
+                        db.Update(returnedtranscript);
+                        db.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        isfinal = 0;
+                    }
 
-
-                    /*
-                    //Console.WriteLine($"Transcript: {transcript}");
                     if (transcript.ToLowerInvariant().Contains("exit") ||
                         transcript.ToLowerInvariant().Contains("quit"))
                     {
                         return false;
                     }
-                    */
 
                     TimeSpan resultEndTime = finalResult.ResultEndTime.ToTimeSpan();
 
@@ -346,66 +255,39 @@ namespace GoogleAPI
         /// </summary>
         private WaveInEvent StartListening()
         {
-
             var waveIn = new WaveInEvent
             {
                 DeviceNumber = 0,
                 WaveFormat = new WaveFormat(SampleRate, ChannelCount)
             };
-
-            //waveIn = new WaveIn();
-            //waveIn.WaveFormat = new WaveFormat(SampleRate, ChannelCount);
-
-
             waveIn.DataAvailable += (sender, args) =>
             _microphoneBuffer.Add(ByteString.CopyFrom(args.Buffer, 0, args.BytesRecorded));
             waveIn.StartRecording();
-
-
-
-
             return waveIn;
         }
-
-
-
 
         /// <summary>
         /// Note: the calling code expects a Task with a return value for consistency with
         /// other samples.
         /// We'll always return a task which eventually faults or returns 0.
         /// </summary>
-        public static async Task<int> RecognizeAsync(CancellationToken cancelToken)
+        public static async Task<int> RecognizeAsync()
         {
+            //System.Diagnostics.Debug.WriteLine("Recognize async has been called");
             //var instance = new InfiniteStreaming();
-            //await instance.RunAsync(cancelToken);
+            //await instance.RunAsync();
             return 0;
         }
 
-
-        public async void StartTranslate(CancellationToken cancelToken, string transcriptid)
+        public async void BeginTranslate(string _transcriptid)
         {
-
-            cancelToken.ThrowIfCancellationRequested();
-            worker = new BackgroundWorker();
-            worker.WorkerSupportsCancellation = true;
-            worker.WorkerReportsProgress = true;
-            worker.DoWork += delegate
-            {
-                RecognizeAsync(cancelToken);
-            };
-            worker.RunWorkerAsync();
-
-            _transcriptid = transcriptid;
-            _hubConnection = new HubConnectionBuilder()
-            .WithUrl("https://localhost:44396/chathub")
-            .Build();
-            await _hubConnection.StartAsync();
-
-            trans = db3.tblLectures.FirstOrDefault(a => a.Id == _transcriptid);
-            trans.Transcript = " ";
-
+            //System.Diagnostics.Debug.WriteLine("beginTranslate has been called");
+            //await RecognizeAsync();
+            await Connect();
+            returnedtranscript = db.tblLectures.FirstOrDefault(a => a.Id == _transcriptid); // https://stackoverflow.com/questions/3642371/how-to-update-only-one-field-using-entity-framework
+            await RunAsync();
+            //System.Diagnostics.Debug.WriteLine("db updated!");
         }
-
     }
 }
+

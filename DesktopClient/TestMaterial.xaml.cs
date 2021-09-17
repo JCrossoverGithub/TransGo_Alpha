@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,6 +25,7 @@ namespace DesktopClient
             InitializeComponent();
         }
 
+        //InfiniteStreaming translate = new InfiniteStreaming();
         private void btnWork(object sender, RoutedEventArgs e)
         {
             var bc = new BrushConverter();
@@ -76,6 +78,24 @@ namespace DesktopClient
 
             // Add new course card to WrapPanel
             ClassPanel.Children.Add(newcourse);
+        }
+
+        private void btnStart(object sender, RoutedEventArgs e)
+        {
+            /*
+            System.Diagnostics.Debug.WriteLine("btnstart");
+            translate.isRunning = true;
+            var task = Task.Run(() =>
+            {
+                // System.Diagnostics.Debug.WriteLine("inside of task");
+                translate.BeginTranslate();
+            });
+            */
+        }
+
+        private void btnStop(object sender, RoutedEventArgs e)
+        {
+            //translate.isRunning = false;
         }
     }
 }

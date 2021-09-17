@@ -22,6 +22,8 @@
         <WrapPanel Name="ClassPanel"  Grid.Column="1" Margin="20,0,7,10">
 
         </WrapPanel>
+        <Button Content="Start Translate" Click="btnStart" Margin="0,322,0,208"/>
+        <Button Content="Stop Translate" Click="btnStop" Margin="0,421,0,149"/>
     </Grid>
     
 

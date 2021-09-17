@@ -81,13 +81,17 @@ namespace DesktopClient
         }
         private void btnTranscribe(object sender, RoutedEventArgs e)
         {
+            /*
             CreateTranscript();
             
             var instance = new GoogleAPI.InfiniteStreaming();
             CancellationToken internalToken = tokenSource.Token;
-            instance.StartTranslate(internalToken, _transcript.Id);
+            instance.StartTranslate(_transcript.Id, internalToken);
             
             BeginSignalR(_transcript.Id);
+            */
+            TranscriptPage win = new TranscriptPage(_course, _userid);
+            win.Show();
 
         }
 
