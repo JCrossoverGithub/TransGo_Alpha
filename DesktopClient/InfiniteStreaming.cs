@@ -88,14 +88,15 @@ namespace DesktopClient
             //System.Diagnostics.Debug.WriteLine("start of runasync");
             using (var microphone = StartListening())
             {
-                //System.Diagnostics.Debug.WriteLine("start of using(var mic)");
+                System.Diagnostics.Debug.WriteLine("start of using(var mic)");
                 while (isRunning)
                 {
-                    //System.Diagnostics.Debug.WriteLine("WHILE ISRUNNING = TRUE");
+                    System.Diagnostics.Debug.WriteLine("WHILE ISRUNNING = TRUE");
                     await MaybeStartStreamAsync();
                     // ProcessResponses will return false if it hears "exit" or "quit".
                     if (!ProcessResponses() || !isRunning)
                     {
+                        System.Diagnostics.Debug.WriteLine("isrunning is false in runasync()");
                         db.Dispose();
                         System.Diagnostics.Debug.WriteLine("!ProcessResponse() OR isRunning IS FALSE!!!!");
                         return;
@@ -180,15 +181,13 @@ namespace DesktopClient
                 {
                     isfinal = 0;
                     _hubConnection.SendAsync("SendGroupMessage", returnedtranscript.Id, isfinal, message);
+                    System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, (ThreadStart)delegate { _main.transcript.Text = returnedtranscript.Transcript + " " + message; }); ///
                 }
 
                 if (finalResult != null)
                 {
                     string transcript = finalResult.Alternatives[0].Transcript;
-                    System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal,(ThreadStart)delegate { _main.transcript.Text = transcript; }); ///
-                    //returnedtranscript.Transcript = returnedtranscript.Transcript + " " + transcript; ///
-                    //db.Update(returnedtranscript); ///
-                    //db.SaveChangesAsync(); /// 
+                    //System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal,(ThreadStart)delegate { _main.transcript.Text = transcript; }); ///
                     System.Diagnostics.Debug.WriteLine($"Transcript: {transcript}");
 
                     if(response.Results.First().IsFinal)
@@ -202,6 +201,11 @@ namespace DesktopClient
                         db.SaveChangesAsync();
                     }
 
+                    if(!isRunning)
+                    {
+                        System.Diagnostics.Debug.WriteLine("isrunning is false in processresponse()");
+                        return false;
+                    }
 
                     if (transcript.ToLowerInvariant().Contains("exit") ||
                         transcript.ToLowerInvariant().Contains("quit"))
@@ -287,12 +291,27 @@ namespace DesktopClient
 
         public async void BeginTranslate(string _transcriptid)
         {
+            isRunning = true;
             //System.Diagnostics.Debug.WriteLine("beginTranslate has been called");
             //await RecognizeAsync();
             await Connect();
             returnedtranscript = db.tblLectures.FirstOrDefault(a => a.Id == _transcriptid); // https://stackoverflow.com/questions/3642371/how-to-update-only-one-field-using-entity-framework
             await RunAsync();
             //System.Diagnostics.Debug.WriteLine("db updated!");
+        }
+
+
+
+        public async void EndProcess()
+        {
+            isRunning = false;
+            System.Diagnostics.Debug.WriteLine("end process called");
+            returnedtranscript.IsComplete = 1;
+            returnedtranscript.TimeEnd = DateTime.Now.ToShortTimeString();
+            db.Update(returnedtranscript);
+            await db.SaveChangesAsync();
+            await db.DisposeAsync();
+            System.Diagnostics.Debug.WriteLine("db is disposed");
         }
     }
 }

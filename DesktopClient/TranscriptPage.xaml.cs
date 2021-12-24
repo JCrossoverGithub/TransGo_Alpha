@@ -41,8 +41,8 @@ namespace DesktopClient
             _transcript.Id = (rand.Next(100000, 1000000)).ToString();
             _transcript.HostId = _userid;
             _transcript.CourseId = _course.Id;
-            _transcript.DateOf = "Date4";
-            _transcript.TimeStart = "Time4";
+            _transcript.DateOf = DateTime.Now.ToShortDateString();
+            _transcript.TimeStart = DateTime.Now.ToShortTimeString();
             _transcript.IsComplete = 0;
             _transcript.Transcript = " ";
 
@@ -70,7 +70,7 @@ namespace DesktopClient
         private async void btnStart(object sender, RoutedEventArgs e)
         {
             await CreateTranscript();
-            translate.isRunning = true;
+            //translate.isRunning = true;
             var task = Task.Run(() =>
             {
                 // System.Diagnostics.Debug.WriteLine("inside of task");
@@ -83,9 +83,12 @@ namespace DesktopClient
             */
         }
 
-        private void btnStop(object sender, RoutedEventArgs e)
+        private async void btnStop(object sender, RoutedEventArgs e)
         {
-            translate.isRunning = false;
+            //translate.isRunning = false;
+
+            translate.EndProcess();
+
         }
     }
 }
