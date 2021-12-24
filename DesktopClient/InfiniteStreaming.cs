@@ -165,21 +165,30 @@ namespace DesktopClient
                 var response = _rpcStream.GetResponseStream().Current;
                 _serverResponseAvailableTask = _rpcStream.GetResponseStream().MoveNextAsync();
                 // Uncomment this to see the details of interim results.
-                // System.Diagnostics.Debug.WriteLine($"Response: {response}");
+                //System.Diagnostics.Debug.WriteLine($"Response: {response}");
 
                 // See if one of the results is a "final result". If so, we trim our
                 // processing buffer.
                 var finalResult = response.Results.FirstOrDefault(r => r.IsFinal);
                 string message = response.Results.First().Alternatives[0].Transcript;
+                //Print number 1 most likely interim result
+                //System.Diagnostics.Debug.WriteLine(message);
                 int isfinal;
+
+
+                if(!response.Results.First().IsFinal)
+                {
+                    isfinal = 0;
+                    _hubConnection.SendAsync("SendGroupMessage", returnedtranscript.Id, isfinal, message);
+                }
 
                 if (finalResult != null)
                 {
                     string transcript = finalResult.Alternatives[0].Transcript;
                     System.Windows.Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal,(ThreadStart)delegate { _main.transcript.Text = transcript; }); ///
-                    returnedtranscript.Transcript = returnedtranscript.Transcript + " " + transcript; ///
-                    db.Update(returnedtranscript); ///
-                    db.SaveChangesAsync(); /// 
+                    //returnedtranscript.Transcript = returnedtranscript.Transcript + " " + transcript; ///
+                    //db.Update(returnedtranscript); ///
+                    //db.SaveChangesAsync(); /// 
                     System.Diagnostics.Debug.WriteLine($"Transcript: {transcript}");
 
                     if(response.Results.First().IsFinal)
@@ -187,15 +196,12 @@ namespace DesktopClient
                         // If isFinal is true, append the new sentence to the transcript.
                         System.Diagnostics.Debug.WriteLine("DONE IS FINAL!!!!!");
                         isfinal = 1;
-                        //_hubConnection.SendAsync("SendGroupMessage", returnedtranscript.Id, isfinal, message);
+                        _hubConnection.SendAsync("SendGroupMessage", returnedtranscript.Id, isfinal, message);
                         returnedtranscript.Transcript = returnedtranscript.Transcript + " " + transcript;
                         db.Update(returnedtranscript);
                         db.SaveChangesAsync();
                     }
-                    else
-                    {
-                        isfinal = 0;
-                    }
+
 
                     if (transcript.ToLowerInvariant().Contains("exit") ||
                         transcript.ToLowerInvariant().Contains("quit"))
