@@ -82,11 +82,6 @@ Implements a responsive SPA built with Razor components.
 **Components:**
 - `AddLoginDialog`, `AddRegistrationDialog`, `AddTeachRegDialog`, etc. — interactive modals using EditForm binding and server calls.
 
-**Real-Time Flow:**
-```text
-TranscriptPage → Connects via SignalR → Joins transcript group (AddClass)
-→ Receives 'ReceiveMessage' → Updates LiveTranscript in real time
-```
 
 ---
 
