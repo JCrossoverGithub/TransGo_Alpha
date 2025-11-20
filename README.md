@@ -9,16 +9,6 @@
 - **DesktopClient (WPF):** A Windows desktop application mirroring course and transcript functionality for offline or instructor use.
 - **Shared (Class Library):** Contains shared models (`User`, `Course`, `Lecture`) referenced by all other projects to maintain type safety and serialization consistency.
 
-```text
-Blazor Client  ──HTTP──▶  ASP.NET Core Server  ──▶ SQL Server
-      │                           ▲
-      │                           │
-      └──SignalR (ChatHub)─────────┘  (real-time transcript streaming)
-
-WPF DesktopClient ──┬── Uses Shared Models & EF Contexts
-                     └── Optional SQL connection for local data
-```
-
 ---
 
 ## Data Architecture
@@ -117,14 +107,3 @@ A lightweight Windows desktop interface for the same course and lecture data.
 
 ---
 
-## Potential Additions/Updates
-- **Normalize data models** to replace string arrays with relational joins.
-- **Add authentication** via ASP.NET Identity or JWT.
-- **Centralize configuration** (connection strings & secrets) in environment-based JSON.
-- **Introduce DTOs + validation** to secure endpoints.
-- **Expand testing**: add xUnit integration for controllers & hub methods.
-
----
-
-## Summary
-**TransGo Alpha** demonstrates full-stack .NET proficiency through modular architecture, EF Core database integration, and real-time data synchronization. The project is a strong showcase of applied C#, ASP.NET Core, and SignalR engineering practices across multiple platforms.
