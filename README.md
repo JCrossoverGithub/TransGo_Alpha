@@ -2,6 +2,7 @@
 
 ## System Summary
 **TransGo Alpha** is a hybrid full-stack .NET solution that unifies web, desktop, and server environments into one modular ecosystem. It showcases real-time communication, consistent shared data models, and clean multi-project design.
+**Please keep in mind this is one of many iterations, and the primary focus of this one was to get the technical side working. The designs were upgraded in a later version.**
 
 ### Architecture Layers
 - **Server (ASP.NET Core Web API + SignalR):** Handles REST endpoints for users, courses, and lectures, and provides real-time streaming through SignalR.
